@@ -1,0 +1,13 @@
+sentence-transformers
+numpy
+pytest
+python-dotenv
+underthesea
+scikit-learn
+ragas
+datasets
+openai
+qdrant-client
+rank_bm25
+flashrank
+ruff
