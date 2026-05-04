@@ -1,3 +1,7 @@
 [
-  {"question": "hihi cả nhà tự tạo testset bằng cơm nhé", "ground_truth": "Không kịp tạo luôn"},
+  {"question": "Nhân viên được nghỉ phép bao nhiêu ngày mỗi năm?", "ground_truth": "Nhân viên được nghỉ 12 ngày phép mỗi năm"},
+  {"question": "Mật khẩu cần thay đổi sau bao lâu?", "ground_truth": "Mật khẩu cần thay đổi mỗi 90 ngày"},
+  {"question": "Thời gian thử việc là bao lâu?", "ground_truth": "Thời gian thử việc là 60 ngày"},
+  {"question": "Quy định bảo vệ dữ liệu cá nhân được ban hành năm nào?", "ground_truth": "Nghị định 13/2023 về bảo vệ dữ liệu cá nhân"},
+  {"question": "Dữ liệu cá nhân bao gồm những loại nào?", "ground_truth": "Dữ liệu cá nhân bao gồm dữ liệu cá nhân cơ bản và dữ liệu cá nhân nhạy cảm"}
 ]
