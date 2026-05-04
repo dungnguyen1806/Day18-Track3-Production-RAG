@@ -9,7 +9,7 @@ from src.m2_search import HybridSearch
 from src.m3_rerank import CrossEncoderReranker
 from src.m4_eval import load_test_set, evaluate_ragas, failure_analysis, save_report
 from src.m5_enrichment import enrich_chunks
-from config import RERANK_TOP_K
+from config import OPENAI_API_KEY, RERANK_TOP_K
 
 
 def build_pipeline():
@@ -50,23 +50,56 @@ def build_pipeline():
     return search, reranker
 
 
+def generate_answer(query: str, contexts: list[str]) -> str:
+    """Generate an answer from retrieved contexts, with a safe fallback."""
+    if not contexts:
+        return "Không tìm thấy thông tin."
+
+    if not OPENAI_API_KEY:
+        return contexts[0]
+
+    try:
+        from openai import OpenAI
+
+        client = OpenAI(api_key=OPENAI_API_KEY)
+        context_str = "\n\n".join(f"[Context {i+1}]\n{ctx}" for i, ctx in enumerate(contexts))
+        response = client.chat.completions.create(
+            model="gpt-4o-mini",
+            temperature=0,
+            messages=[
+                {
+                    "role": "system",
+                    "content": (
+                        "Bạn là trợ lý trả lời câu hỏi từ tài liệu nội bộ. "
+                        "Chỉ dùng thông tin trong context được cung cấp. "
+                        "Nếu context không đủ để trả lời chắc chắn, hãy nói rõ "
+                        "'Không tìm thấy thông tin trong tài liệu được cung cấp.'"
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": (
+                        f"Context:\n{context_str}\n\n"
+                        f"Câu hỏi: {query}\n\n"
+                        "Hãy trả lời ngắn gọn bằng tiếng Việt và chỉ dựa trên context."
+                    ),
+                },
+            ],
+        )
+        answer = response.choices[0].message.content or ""
+        return answer.strip() or contexts[0]
+    except Exception as exc:
+        print(f"  ⚠️  LLM generation failed, fallback to top context: {exc}")
+        return contexts[0]
+
+
 def run_query(query: str, search: HybridSearch, reranker: CrossEncoderReranker) -> tuple[str, list[str]]:
     """Run single query through pipeline."""
     results = search.search(query)
     docs = [{"text": r.text, "score": r.score, "metadata": r.metadata} for r in results]
     reranked = reranker.rerank(query, docs, top_k=RERANK_TOP_K)
     contexts = [r.text for r in reranked] if reranked else [r.text for r in results[:3]]
-
-    # TODO (nhóm): Replace with LLM generation for better scores
-    # from openai import OpenAI
-    # client = OpenAI()
-    # context_str = "\n\n".join(contexts)
-    # resp = client.chat.completions.create(model="gpt-4o-mini", messages=[
-    #     {"role": "system", "content": "Trả lời CHỈ dựa trên context. Nếu không có → nói 'Không tìm thấy.'"},
-    #     {"role": "user", "content": f"Context:\n{context_str}\n\nCâu hỏi: {query}"},
-    # ])
-    # answer = resp.choices[0].message.content
-    answer = contexts[0] if contexts else "Không tìm thấy thông tin."
+    answer = generate_answer(query, contexts)
     return answer, contexts
 
 

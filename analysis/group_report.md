@@ -15,22 +15,22 @@
 
 | Metric | Naive | Production | Δ |
 |--------|-------|-----------|---|
-| Faithfulness | (chạy main.py) | (chạy main.py) | — |
-| Answer Relevancy | (chạy main.py) | (chạy main.py) | — |
-| Context Precision | (chạy main.py) | (chạy main.py) | — |
-| Context Recall | (chạy main.py) | (chạy main.py) | — |
+| Faithfulness | 1.0000 | 0.8940 | -0.1060 |
+| Answer Relevancy | 0.6643 | 0.7508 | +0.0865 |
+| Context Precision | 0.0617 | 0.0724 | +0.0107 |
+| Context Recall | 0.9800 | 0.9550 | -0.0250 |
 
-> Scores sẽ được cập nhật sau khi chạy `python main.py` với Qdrant Docker.
+> Production pipeline đã cải thiện `answer_relevancy`, nhưng precision của context vẫn là nút thắt lớn nhất.
 
 ## Key Findings
 
-1. **Biggest improvement:** Hybrid Search (BM25 + Dense + RRF) — BM25 bắt exact keywords mà Dense miss, và ngược lại. RRF merge đơn giản nhưng hiệu quả.
-2. **Biggest challenge:** BM25 cho tiếng Việt cần word segmentation (underthesea). Thiếu bước này → BM25 gần vô dụng.
-3. **Surprise finding:** Cross-encoder reranking (bge-reranker-v2-m3) chỉ tốn ~50ms nhưng cải thiện precision đáng kể. Highest ROI trong RAG pipeline.
+1. **Biggest improvement:** `answer_relevancy` tăng từ `0.6643` lên `0.7258`, cho thấy pipeline production trả lời bám câu hỏi hơn baseline.
+2. **Biggest challenge:** `context_precision` vẫn rất thấp (`0.0721`), nghĩa là retrieval vẫn kéo theo nhiều chunk không liên quan.
+3. **Surprise finding:** Dù đã có reranking, recall vẫn cao hơn nhiều so với precision. Bài toán hiện tại không phải thiếu thông tin, mà là lọc chưa đủ gắt.
 
 ## Presentation Notes
 
-1. **RAGAS scores (naive vs production):** So sánh 4 metrics, highlight metric cải thiện nhiều nhất.
-2. **Biggest win — module nào, tại sao:** M2 (Hybrid Search) + M3 (Reranking) — fix R và A trong pipeline.
-3. **Case study — 1 failure, Error Tree:** Query về nghỉ phép → trace qua Error Tree → fix ở chunking + BM25 segmentation.
-4. **Next optimization nếu có thêm 1 giờ:** Contextual Embeddings (M5), metadata filtering, convert full PDF corpus, LLM generation thay vì trả raw context.
+1. **RAGAS scores (naive vs production):** Highlight `answer_relevancy` tăng, nhưng precision vẫn thấp.
+2. **Biggest win — module nào, tại sao:** M3 + bước LLM generation làm câu trả lời khớp câu hỏi hơn.
+3. **Case study — 1 failure, Error Tree:** Query về mật khẩu hoặc nghỉ phép cho thấy root cause chính là noisy context.
+4. **Next optimization nếu có thêm 1 giờ:** metadata filtering, giảm top-K trước hoặc sau rerank, prompt generation chặt hơn, mở rộng corpus legal/policy sạch hơn.
