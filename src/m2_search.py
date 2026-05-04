@@ -184,11 +184,23 @@ class DenseSearch:
             List of SearchResult sorted by cosine similarity descending.
         """
         query_vector = self._get_encoder().encode(query).tolist()
-        hits = self.client.search(
-            collection_name=collection,
-            query_vector=query_vector,
-            limit=top_k
-        )
+
+        # qdrant-client >=1.17 uses query_points(), while older examples often
+        # use search(). Support both to keep the lab code version-tolerant.
+        if hasattr(self.client, "query_points"):
+            response = self.client.query_points(
+                collection_name=collection,
+                query=query_vector,
+                limit=top_k,
+                with_payload=True,
+            )
+            hits = response.points
+        else:
+            hits = self.client.search(
+                collection_name=collection,
+                query_vector=query_vector,
+                limit=top_k
+            )
 
         return [
             SearchResult(

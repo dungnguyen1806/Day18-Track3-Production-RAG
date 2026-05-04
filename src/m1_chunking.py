@@ -77,21 +77,44 @@ def chunk_semantic(text: str, threshold: float = SEMANTIC_THRESHOLD,
     if not sentences:
         return []
 
-    # 2. Encode sentences:
-    from sentence_transformers import SentenceTransformer
-    model = SentenceTransformer("all-MiniLM-L6-v2")  # fast
-    embeddings = model.encode(sentences)
+    def lexical_similarity(a: str, b: str) -> float:
+        """Simple fallback similarity when embedding model is unavailable."""
+        tokens_a = set(re.findall(r"\w+", a.lower()))
+        tokens_b = set(re.findall(r"\w+", b.lower()))
+        if not tokens_a or not tokens_b:
+            return 0.0
+        overlap = len(tokens_a & tokens_b)
+        return overlap / max(min(len(tokens_a), len(tokens_b)), 1)
+
+    # 2. Encode sentences if possible; otherwise fall back to lexical similarity.
+    embeddings = None
+    try:
+        from sentence_transformers import SentenceTransformer
+
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+        embeddings = model.encode(sentences)
+    except Exception:
+        embeddings = None
 
     # 3. Compare consecutive sentences and group:
-    from numpy import dot
-    from numpy.linalg import norm
-    def cosine_sim(a, b): return dot(a, b) / (norm(a) * norm(b))
+    if embeddings is not None:
+        from numpy import dot
+        from numpy.linalg import norm
+
+        def sentence_similarity(i: int, j: int) -> float:
+            denom = norm(embeddings[i]) * norm(embeddings[j])
+            if denom == 0:
+                return 0.0
+            return float(dot(embeddings[i], embeddings[j]) / denom)
+    else:
+        def sentence_similarity(i: int, j: int) -> float:
+            return lexical_similarity(sentences[i], sentences[j])
 
     chunks = []
     current_group = [sentences[0]]
     
     for i in range(1, len(sentences)):
-        sim = cosine_sim(embeddings[i-1], embeddings[i])
+        sim = sentence_similarity(i - 1, i)
         if sim < threshold:
             # End current chunk
             chunks.append(Chunk(

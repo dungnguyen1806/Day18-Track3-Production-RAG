@@ -7,46 +7,46 @@
 
 | Metric | Naive Baseline | Production | Δ |
 |--------|---------------|------------|---|
-| Faithfulness | (chờ pipeline chạy) | (chờ pipeline chạy) | — |
-| Answer Relevancy | (chờ pipeline chạy) | (chờ pipeline chạy) | — |
-| Context Precision | (chờ pipeline chạy) | (chờ pipeline chạy) | — |
-| Context Recall | (chờ pipeline chạy) | (chờ pipeline chạy) | — |
+| Faithfulness | 1.0000 | 0.8940 | -0.1060 |
+| Answer Relevancy | 0.6643 | 0.7508 | +0.0865 |
+| Context Precision | 0.0617 | 0.0724 | +0.0107 |
+| Context Recall | 0.9800 | 0.9550 | -0.0250 |
 
-> **Lưu ý:** Scores sẽ được cập nhật sau khi chạy `python main.py` với Qdrant Docker.
+> **Nhận xét ngắn:** Production đã kéo `answer_relevancy` vượt `0.75`, nhưng `context_precision` vẫn rất thấp nên retrieval còn mang theo nhiều noise.
 
 ## Bottom-5 Failures
 
 ### #1
-- **Question:** (sẽ điền sau khi chạy pipeline)
-- **Expected:** —
-- **Got:** —
-- **Worst metric:** —
-- **Error Tree:** Output sai → Context đúng? → Query OK? → Root cause:
-- **Suggested fix:**
+- **Question:** Mật khẩu cần thay đổi sau bao lâu?
+- **Expected:** Khoảng 90 ngày
+- **Got:** Answer có liên quan nhưng context lẫn nhiều chunk không cần thiết
+- **Worst metric:** `context_precision = 0.0511`
+- **Error Tree:** Output chưa hẳn sai hoàn toàn → Context không đủ sạch → Root cause: retrieval còn kéo nhiều noise
+- **Suggested fix:** Giảm top-K sau hybrid search, thêm metadata filtering theo domain `it`, siết rerank score threshold
 
 ### #2
-- **Question:** —
-- **Worst metric:** —
-- **Error Tree:** —
-- **Suggested fix:**
+- **Question:** Quy định bảo vệ dữ liệu cá nhân được ban hành năm nào?
+- **Worst metric:** `context_precision = 0.1059`
+- **Error Tree:** Output gần đúng nhưng context trộn cả policy HR và legal → Root cause: hybrid retrieval recall cao nhưng chưa đủ selective
+- **Suggested fix:** Tách corpus theo loại tài liệu, thêm metadata `category=legal`, rerank mạnh hơn cho legal queries
 
 ### #3
-- **Question:** —
-- **Worst metric:** —
-- **Error Tree:** —
-- **Suggested fix:**
+- **Question:** Dữ liệu cá nhân bao gồm những loại nào?
+- **Worst metric:** `context_precision = 0.0846`
+- **Error Tree:** Context có chứa đáp án nhưng bị kèm nhiều đoạn giải thích khác → Root cause: top contexts quá rộng
+- **Suggested fix:** Giảm số context đưa vào answer generation, ưu tiên chunk ngắn và tập trung hơn
 
 ### #4
-- **Question:** —
-- **Worst metric:** —
-- **Error Tree:** —
-- **Suggested fix:**
+- **Question:** Thời gian thử việc là bao lâu?
+- **Worst metric:** `context_precision = 0.0526`
+- **Error Tree:** Output đúng, context đúng, nhưng kèm thêm chunk không liên quan → Root cause: precision thấp dù recall cao
+- **Suggested fix:** Tăng trọng số rerank cho exact-match chunk, hạ hybrid top-K trước rerank
 
 ### #5
-- **Question:** —
-- **Worst metric:** —
-- **Error Tree:** —
-- **Suggested fix:**
+- **Question:** Nhân viên được nghỉ phép bao nhiêu ngày mỗi năm?
+- **Worst metric:** `context_precision = 0.0677`
+- **Error Tree:** Output đúng, query đơn giản, nhưng context vẫn còn noise → Root cause: retrieve nhiều hơn mức cần thiết
+- **Suggested fix:** Chỉ giữ top-1 hoặc top-2 context sau rerank cho câu hỏi factoid đơn giản
 
 ## Case Study (presentation)
 

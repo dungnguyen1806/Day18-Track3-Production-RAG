@@ -1,10 +1,81 @@
 {
   "aggregate": {
-    "faithfulness": 0,
-    "answer_relevancy": 0,
-    "context_precision": 0,
-    "context_recall": 0
+    "faithfulness": 0.8940170940170941,
+    "answer_relevancy": 0.7508058608058608,
+    "context_precision": 0.07237867598944184,
+    "context_recall": 0.9550000000000001
   },
   "num_questions": 5,
-  "failures": []
+  "failures": [
+    {
+      "question": "Mật khẩu cần thay đổi sau bao lâu?",
+      "avg_score": 0.6135,
+      "worst_metric": "context_precision",
+      "score": 0.0511,
+      "diagnosis": "Too many irrelevant chunks — retrieve quá nhiều noise",
+      "suggested_fix": "Thêm reranking (cross-encoder), giảm top-K, tăng similarity threshold, metadata filtering",
+      "all_scores": {
+        "faithfulness": 0.7778,
+        "answer_relevancy": 0.75,
+        "context_precision": 0.0511,
+        "context_recall": 0.875
+      }
+    },
+    {
+      "question": "Quy định bảo vệ dữ liệu cá nhân được ban hành năm nào?",
+      "avg_score": 0.6553,
+      "worst_metric": "context_precision",
+      "score": 0.1059,
+      "diagnosis": "Too many irrelevant chunks — retrieve quá nhiều noise",
+      "suggested_fix": "Thêm reranking (cross-encoder), giảm top-K, tăng similarity threshold, metadata filtering",
+      "all_scores": {
+        "faithfulness": 0.6923,
+        "answer_relevancy": 0.9231,
+        "context_precision": 0.1059,
+        "context_recall": 0.9
+      }
+    },
+    {
+      "question": "Dữ liệu cá nhân bao gồm những loại nào?",
+      "avg_score": 0.6878,
+      "worst_metric": "context_precision",
+      "score": 0.0846,
+      "diagnosis": "Too many irrelevant chunks — retrieve quá nhiều noise",
+      "suggested_fix": "Thêm reranking (cross-encoder), giảm top-K, tăng similarity threshold, metadata filtering",
+      "all_scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.6667,
+        "context_precision": 0.0846,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "question": "Thời gian thử việc là bao lâu?",
+      "avg_score": 0.6917,
+      "worst_metric": "context_precision",
+      "score": 0.0526,
+      "diagnosis": "Too many irrelevant chunks — retrieve quá nhiều noise",
+      "suggested_fix": "Thêm reranking (cross-encoder), giảm top-K, tăng similarity threshold, metadata filtering",
+      "all_scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.7143,
+        "context_precision": 0.0526,
+        "context_recall": 1.0
+      }
+    },
+    {
+      "question": "Nhân viên được nghỉ phép bao nhiêu ngày mỗi năm?",
+      "avg_score": 0.6919,
+      "worst_metric": "context_precision",
+      "score": 0.0677,
+      "diagnosis": "Too many irrelevant chunks — retrieve quá nhiều noise",
+      "suggested_fix": "Thêm reranking (cross-encoder), giảm top-K, tăng similarity threshold, metadata filtering",
+      "all_scores": {
+        "faithfulness": 1.0,
+        "answer_relevancy": 0.7,
+        "context_precision": 0.0677,
+        "context_recall": 1.0
+      }
+    }
+  ]
 }
