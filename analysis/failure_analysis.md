@@ -1,51 +1,65 @@
-# Failure Analysis — Lab 18: Production RAG
+# Failure Analysis — Lab 18
 
-**Nhóm:** [Tên nhóm]  
-**Thành viên:** [Tên 1 → M1] · [Tên 2 → M2] · [Tên 3 → M3] · [Tên 4 → M4]
-
----
+**Nhóm:** Team 3  
+**Thành viên:** Nguyễn Mạnh Dũng → M1+M5 · Nguyễn Hoàng Long → M2 · Trần Huy → M3+M4
 
 ## RAGAS Scores
 
 | Metric | Naive Baseline | Production | Δ |
 |--------|---------------|------------|---|
-| Faithfulness | | | |
-| Answer Relevancy | | | |
-| Context Precision | | | |
-| Context Recall | | | |
+| Faithfulness | (chờ pipeline chạy) | (chờ pipeline chạy) | — |
+| Answer Relevancy | (chờ pipeline chạy) | (chờ pipeline chạy) | — |
+| Context Precision | (chờ pipeline chạy) | (chờ pipeline chạy) | — |
+| Context Recall | (chờ pipeline chạy) | (chờ pipeline chạy) | — |
+
+> **Lưu ý:** Scores sẽ được cập nhật sau khi chạy `python main.py` với Qdrant Docker.
 
 ## Bottom-5 Failures
 
 ### #1
-- **Question:**
-- **Expected:**
-- **Got:**
-- **Worst metric:**
-- **Error Tree:** Output sai → Context đúng? → Query OK? →
-- **Root cause:**
+- **Question:** (sẽ điền sau khi chạy pipeline)
+- **Expected:** —
+- **Got:** —
+- **Worst metric:** —
+- **Error Tree:** Output sai → Context đúng? → Query OK? → Root cause:
 - **Suggested fix:**
 
 ### #2
-(copy template)
+- **Question:** —
+- **Worst metric:** —
+- **Error Tree:** —
+- **Suggested fix:**
 
 ### #3
-(copy template)
+- **Question:** —
+- **Worst metric:** —
+- **Error Tree:** —
+- **Suggested fix:**
 
 ### #4
-(copy template)
+- **Question:** —
+- **Worst metric:** —
+- **Error Tree:** —
+- **Suggested fix:**
 
 ### #5
-(copy template)
+- **Question:** —
+- **Worst metric:** —
+- **Error Tree:** —
+- **Suggested fix:**
 
-## Case Study (cho presentation)
+## Case Study (presentation)
 
-**Question chọn phân tích:**
+**Question:** "Nhân viên được nghỉ phép bao nhiêu ngày mỗi năm?"
 
 **Error Tree walkthrough:**
-1. Output đúng? →
-2. Context đúng? →
-3. Query rewrite OK? →
-4. Fix ở bước:
+1. Output đúng? → Kiểm tra answer có chứa "12 ngày" không
+2. Context đúng? → Kiểm tra chunks retrieved có chứa chương 2 (chính sách nghỉ phép)
+3. Query rewrite OK? → Query đơn giản, không cần rewrite
+4. Fix ở bước: Nếu context sai → cải thiện chunking (hierarchical) + BM25 Vietnamese segmentation
 
-**Nếu có thêm 1 giờ, sẽ optimize:**
--
+**Nếu có thêm 1 giờ:**
+- Thêm Contextual Embeddings (M5) vào pipeline — giảm 49% retrieval failure
+- Implement metadata filtering theo category (policy, it, hr, legal)
+- Convert full PDF files sang markdown để có corpus phong phú hơn
+- Fine-tune prompt template cho LLM generation
